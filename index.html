@@ -313,10 +313,25 @@ async function loadConfig() {
 // ══════════════════════════════════
 // TTS — Web Speech API (브라우저 내장)
 // ══════════════════════════════════
-let koVoice = null;
 function loadVoices() {
-  const v = speechSynthesis.getVoices();
-  koVoice = v.find(x => x.lang === 'ko-KR') || v.find(x => x.lang.startsWith('ko')) || null;
+  const voices = speechSynthesis.getVoices();
+  if (!voices.length) return;
+  const sel = document.getElementById('voiceSelect');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '';
+  // 한국어 먼저, 그 다음 나머지
+  const ko = voices.filter(v => v.lang.startsWith('ko'));
+  const others = voices.filter(v => !v.lang.startsWith('ko'));
+  [...ko, ...others].forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.name;
+    opt.textContent = v.name + ' (' + v.lang + ')';
+    sel.appendChild(opt);
+  });
+  if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+  else if (ko.length) sel.value = ko[0].name;
+  savePref();
 }
 if (window.speechSynthesis) {
   speechSynthesis.addEventListener('voiceschanged', loadVoices);
@@ -328,20 +343,25 @@ function getTtsVol() {
   return el ? parseInt(el.value) / 10 : 1.0;
 }
 
+function getSelectedVoice() {
+  const sel = document.getElementById('voiceSelect');
+  const name = sel ? sel.value : '';
+  return speechSynthesis.getVoices().find(v => v.name === name) || null;
+}
+
 function speakPromise(text) {
   return new Promise(resolve => {
     if (!window.speechSynthesis) { resolve(); return; }
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang    = 'ko-KR';
-    u.rate    = 0.9;
-    u.volume  = getTtsVol();
-    if (koVoice) u.voice = koVoice;
-    u.onend   = resolve;
-    u.onerror = resolve;
-    // 타임아웃 폴백 (일부 브라우저에서 onend 미발생)
+    const voice = getSelectedVoice();
+    u.lang   = voice ? voice.lang : 'ko-KR';
+    u.rate   = 0.9;
+    u.volume = getTtsVol();
+    if (voice) u.voice = voice;
     const timeout = setTimeout(resolve, text.length * 200 + 2000);
-    u.onend = () => { clearTimeout(timeout); resolve(); };
+    u.onend  = () => { clearTimeout(timeout); resolve(); };
+    u.onerror= () => { clearTimeout(timeout); resolve(); };
     speechSynthesis.speak(u);
   });
 }
@@ -394,27 +414,27 @@ function nowHHMM() {
 }
 function savePref() {
   try {
-    const ss = document.getElementById('soundSelect'),
-          vs = document.getElementById('volSlider'),
+    const vs = document.getElementById('volSlider'),
           tv = document.getElementById('ttsVolSlider'),
-          rp = document.getElementById('repeatSelect');
-    if(ss) localStorage.setItem('yc_s', ss.value);
-    if(vs) localStorage.setItem('yc_v', vs.value);
+          rp = document.getElementById('repeatSelect'),
+          vc = document.getElementById('voiceSelect');
+    if(vs) localStorage.setItem('yc_v',  vs.value);
     if(tv) localStorage.setItem('yc_tv', tv.value);
     if(rp) localStorage.setItem('yc_rp', rp.value);
+    if(vc) localStorage.setItem('yc_vc', vc.value);
   } catch(e) {}
 }
 function loadPref() {
   try {
-    const s=localStorage.getItem('yc_s'), v=localStorage.getItem('yc_v'),
-          tv=localStorage.getItem('yc_tv'), rp=localStorage.getItem('yc_rp');
-    const ss=document.getElementById('soundSelect'), vs=document.getElementById('volSlider'),
-          vv=document.getElementById('vval'), tvs=document.getElementById('ttsVolSlider'),
-          tvv=document.getElementById('tvval'), rps=document.getElementById('repeatSelect');
-    if(s&&ss) ss.value=s;
+    const v=localStorage.getItem('yc_v'), tv=localStorage.getItem('yc_tv'),
+          rp=localStorage.getItem('yc_rp'), vc=localStorage.getItem('yc_vc');
+    const vs=document.getElementById('volSlider'), vv=document.getElementById('vval'),
+          tvs=document.getElementById('ttsVolSlider'), tvv=document.getElementById('tvval'),
+          rps=document.getElementById('repeatSelect'), vcs=document.getElementById('voiceSelect');
     if(v&&vs){vs.value=v;if(vv)vv.textContent=v;}
     if(tv&&tvs){tvs.value=tv;if(tvv)tvv.textContent=tv;}
     if(rp&&rps) rps.value=rp;
+    if(vc&&vcs&&[...vcs.options].some(o=>o.value===vc)) vcs.value=vc;
   } catch(e) {}
 }
 
@@ -870,41 +890,34 @@ function buildStudentUI() {
         <div class="tts-status" id="ttsStatus">브라우저 내장 TTS</div>
         <div class="spanel">
           <div class="srow">
-            <span class="slbl">호출음</span>
-            <select class="ssel" id="soundSelect" onchange="savePref()">
-              <option value="0">부드러운 차임</option>
-              <option value="1">딩동</option>
-              <option value="2">멜로디</option>
-              <option value="3">나무 노크</option>
-              <option value="4">물방울</option>
-              <option value="5">🔔 학교 종소리</option>
-              <option value="6">📞 전화벨</option>
-              <option value="7">🚨 긴 알람</option>
-            </select>
-          </div>
-          <div class="srow" style="margin-top:9px">
             <span class="slbl">호출 횟수</span>
             <select class="ssel" id="repeatSelect" onchange="savePref()">
               <option value="1">1회</option><option value="2" selected>2회</option><option value="3">3회</option>
             </select>
           </div>
-          <div class="vrow">
+          <div class="vrow" style="margin-top:9px">
             <span class="slbl">볼륨</span>
             <input type="range" class="vsldr" id="volSlider" min="1" max="10" value="5"
               oninput="document.getElementById('vval').textContent=this.value;savePref()">
             <span class="vval" id="vval">5</span>
           </div>
           <div class="vrow" style="margin-top:8px">
-            <button class="tbtn2" onclick="playSound(parseInt(document.getElementById('soundSelect').value),getVol())">소리 테스트</button>
+            <button class="tbtn2" onclick="playSound(0,getVol())">소리 테스트</button>
           </div>
-          <div class="vrow" style="margin-top:4px">
+          <div class="srow" style="margin-top:9px">
+            <span class="slbl">목소리</span>
+            <select class="ssel" id="voiceSelect" onchange="savePref()" style="max-width:130px;font-size:10px;">
+              <option value="">기본</option>
+            </select>
+          </div>
+          <div class="vrow" style="margin-top:6px">
             <span class="slbl">음성 크기</span>
             <input type="range" class="vsldr" id="ttsVolSlider" min="1" max="10" value="10"
               oninput="document.getElementById('tvval').textContent=this.value;savePref()">
             <span class="vval" id="tvval">10</span>
           </div>
           <div class="vrow" style="margin-top:8px">
-            <button class="tbtn2" onclick="speakPromise('음성 테스트입니다 잘 들리시나요')">음성 테스트</button>
+            <button class="tbtn2" onclick="speakPromise('안녕하세요 음성 테스트입니다')">음성 테스트</button>
           </div>
         </div>
       </div>
@@ -942,7 +955,7 @@ function startStudent() {
   if (!_myGrade||!_myClassNum) { showToast('반을 먼저 선택해주세요'); return; }
   _studentStarted=true;
   getAC(); loadPref();
-  playSound(parseInt(document.getElementById('soundSelect')?.value||'0'), getVol());
+  playSound(0, getVol());
   try{localStorage.setItem('yc_my_class',_myGrade+'|'+_myClassNum);}catch(e){}
   const clsName=_myGrade+'학년 '+_myClassNum+'반';
   const cn=document.getElementById('sClassName'); if(cn) cn.textContent=clsName;
