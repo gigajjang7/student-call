@@ -63,39 +63,51 @@ body { font-family:'Noto Sans KR',sans-serif; color:var(--text); -webkit-tap-hig
 .toast.show { opacity:1; }
 
 /* ══ 교사 UI ══ */
-.main { flex:1; padding:16px 20px; overflow:hidden; display:flex; }
-#tv { display:flex; gap:14px; width:100%; height:100%; }
-.tl { flex:1.6; display:flex; flex-direction:column; gap:10px; min-height:0; }
-.tr { flex:1; display:flex; flex-direction:column; gap:10px; min-height:0; overflow-y:auto; }
+.t-banner { background:linear-gradient(135deg,#0ea5e9 0%,#0369a1 60%,#1e3a8a 100%); padding:18px 28px 20px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; }
+.t-banner-left { display:flex; flex-direction:column; gap:4px; }
+.t-banner-title { font-size:26px; font-weight:900; color:white; letter-spacing:-1.5px; }
+.t-banner-title em { font-style:normal; color:#7dd3fc; }
+.t-banner-sub { font-size:12px; color:rgba(255,255,255,.65); font-weight:500; }
+.t-banner-right { display:flex; align-items:center; gap:8px; }
+.t-banner-school { font-size:13px; font-weight:700; color:white; background:rgba(255,255,255,.18); border-radius:20px; padding:5px 14px; }
 
-.teacher-card { display:flex; align-items:center; gap:12px; flex-shrink:0; padding:12px 18px; }
+.main { flex:1; padding:18px 20px; overflow-y:auto; }
+#tv { display:flex; gap:16px; width:100%; }
+.tl { flex:1.6; display:flex; flex-direction:column; gap:14px; }
+.tr { flex:1; display:flex; flex-direction:column; gap:14px; }
+
+.section-head { display:flex; align-items:center; gap:10px; margin-bottom:2px; }
+.section-num { width:28px; height:28px; border-radius:50%; background:var(--blue); color:white; font-size:13px; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.section-title { font-size:15px; font-weight:900; color:var(--text); }
+
+.teacher-card { display:flex; align-items:center; gap:12px; flex-shrink:0; padding:14px 18px; }
 .teacher-lbl { font-size:12px; font-weight:700; color:var(--text2); white-space:nowrap; }
 .teacher-sel { flex:1; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); padding:9px 14px; font-size:14px; font-weight:700; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; cursor:pointer; transition:border-color .2s; }
 .teacher-sel:focus { border-color:var(--green); }
 
-.class-student-card { flex:1; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
-.class-selector { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; flex-shrink:0; }
+.class-student-card { display:flex; flex-direction:column; }
+.class-selector { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
 .cls-btn { padding:7px 16px; border-radius:20px; font-size:13px; font-weight:700; border:1.5px solid var(--border); background:white; color:var(--text2); cursor:pointer; transition:all .15s; font-family:'Noto Sans KR',sans-serif; }
 .cls-btn:hover { border-color:var(--green-l); color:var(--green-d); }
 .cls-btn.on { background:var(--green); color:white; border-color:var(--green); box-shadow:0 2px 10px rgba(14,165,233,.3); }
 .cls-empty { font-size:12px; color:var(--text2); padding:4px 0; }
 
-.search-wrap { margin-bottom:10px; flex-shrink:0; }
+.search-wrap { margin-bottom:10px; }
 .search-input { width:100%; padding:10px 16px; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); font-size:13px; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; transition:border-color .2s; }
 .search-input:focus { border-color:var(--green); }
 .search-input::placeholder { color:var(--text2); }
 
-.sgrid { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; flex:1; overflow-y:auto; min-height:0; }
+.sgrid { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
 .sbtn { padding:4px 2px; border-radius:var(--r); min-height:40px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; background:var(--card2); border:1.5px solid var(--border); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all .15s; }
 @media(max-width:600px){ .sgrid { grid-template-columns:repeat(4,1fr); } }
 .sbtn:hover { border-color:var(--green-l); background:#e0f2fe; }
 .sbtn.on { background:var(--green); border-color:var(--green); box-shadow:0 3px 10px rgba(14,165,233,.3); }
 .sbtn-num { font-size:11px; font-weight:700; color:var(--text2); }
-.sbtn-name { font-size:clamp(14px,1.5vw,18px); font-weight:900; line-height:1.1; text-align:center; word-break:keep-all; color:var(--text); }
+.sbtn-name { font-size:clamp(12px,1.3vw,16px); font-weight:900; line-height:1.1; text-align:center; word-break:keep-all; color:var(--text); }
 .sbtn.on .sbtn-num  { color:rgba(255,255,255,.75); }
 .sbtn.on .sbtn-name { color:white; }
 
-.call-card { flex-shrink:0; }
+.call-card { }
 .sel-info { font-size:14px; font-weight:700; color:var(--green-d); margin-bottom:12px; padding:10px 14px; background:var(--card2); border-radius:10px; border-left:3px solid var(--green); }
 .msg-input { width:100%; padding:11px 14px; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); font-size:13px; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; resize:none; height:74px; display:block; transition:border-color .2s; }
 .msg-input:focus { border-color:var(--green); }
@@ -113,7 +125,7 @@ body { font-family:'Noto Sans KR',sans-serif; color:var(--text); -webkit-tap-hig
 .resv-add-btn { padding:9px 14px; border-radius:var(--r); font-size:12px; font-weight:700; white-space:nowrap; color:var(--yellow-d); background:rgba(212,168,32,.1); border:1.5px solid rgba(212,168,32,.28); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all .15s; }
 .resv-add-btn:hover { background:rgba(212,168,32,.18); }
 
-.resv-panel { flex-shrink:0; }
+.resv-panel { }
 .resv-list { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
 .resv-item { display:flex; align-items:center; gap:8px; padding:9px 12px; background:var(--card2); border-radius:10px; border:1px solid var(--border); }
 .resv-badge { font-size:12px; font-weight:900; color:var(--yellow-d); flex-shrink:0; min-width:42px; background:rgba(212,168,32,.1); padding:2px 7px; border-radius:7px; }
@@ -123,9 +135,9 @@ body { font-family:'Noto Sans KR',sans-serif; color:var(--text); -webkit-tap-hig
 .resv-del  { background:none; border:none; cursor:pointer; font-size:15px; color:var(--text2); padding:2px 4px; border-radius:6px; transition:color .15s; }
 .resv-del:hover { color:#e06060; }
 
-.rclog-card { flex:1; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
-.rclog { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px; min-height:0; margin-top:10px; }
-.rc-item { background:var(--card2); border-radius:10px; padding:9px 13px; display:flex; align-items:flex-start; gap:10px; flex-shrink:0; border:1px solid var(--border); }
+.rclog-card { }
+.rclog { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+.rc-item { background:var(--card2); border-radius:10px; padding:9px 13px; display:flex; align-items:flex-start; gap:10px; border:1px solid var(--border); }
 .rc-time  { font-size:11px; color:var(--text2); flex-shrink:0; padding-top:2px; font-weight:700; }
 .rc-name  { font-size:13px; font-weight:700; }
 .rc-msg   { font-size:11px; color:var(--text2); margin-top:3px; }
@@ -535,17 +547,16 @@ window.exportConfig = exportConfig;
 // ══════════════════════════════════
 function buildTeacherUI() {
   document.getElementById('app').innerHTML = `
-  <header class="header">
-    <div style="display:flex;align-items:center;gap:8px">
-      <div class="logo logo-t">Student<em>-call</em></div>
-      <span style="font-size:11px;font-weight:600;color:var(--text2)">by.기가수빈</span>
-      <div class="badge" id="tBadge">${CONFIG.schoolName}</div>
+  <div class="t-banner">
+    <div class="t-banner-left">
+      <div class="t-banner-title">Student<em>-call</em> <span style="font-size:13px;font-weight:600;color:rgba(255,255,255,.6)">by.기가수빈</span></div>
+      <div class="t-banner-sub">교사용 학생 호출 시스템</div>
     </div>
-    <div class="hright">
-      <button class="icon-btn" onclick="openSetup()">⚙ 설정</button>
-      <div class="chip t">교사용</div>
+    <div class="t-banner-right">
+      <div class="t-banner-school" id="tBadge">${CONFIG.schoolName}</div>
+      <button class="icon-btn" style="background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.3);color:white" onclick="openSetup()">⚙ 설정</button>
     </div>
-  </header>
+  </div>
   <div class="main">
     <div id="tv">
       <div class="tl">
@@ -556,9 +567,9 @@ function buildTeacherUI() {
             ${CONFIG.teachers.map(t => `<option value="${t}">${t} 선생님</option>`).join('')}
           </select>
         </div>
-        <div class="step-header">
-          <span class="step-num">STEP 01</span>
-          <span class="step-title">학반 · 학생 선택</span>
+        <div class="section-head">
+          <div class="section-num">1</div>
+          <div class="section-title">학반 · 학생 선택</div>
         </div>
         <div class="card class-student-card">
           <div class="class-selector" id="classSelector"></div>
@@ -569,9 +580,9 @@ function buildTeacherUI() {
         </div>
       </div>
       <div class="tr">
-        <div class="step-header">
-          <span class="step-num">STEP 02</span>
-          <span class="step-title">호출하기</span>
+        <div class="section-head">
+          <div class="section-num">2</div>
+          <div class="section-title">호출하기</div>
         </div>
         <div class="card call-card">
           <div class="sel-info" id="selInfo">학생을 선택해주세요</div>
@@ -1017,26 +1028,4 @@ function startCountdown(sec) {
 }
 
 function updateCountdownUI() {
-  const cd=document.getElementById('sCountdown'),bar=document.getElementById('sBar');
-  if(cd) cd.textContent=_countRemain+'초 후 자동 닫힘';
-  if(bar) bar.style.width=Math.max(0,_countRemain/(CONFIG.autoDismiss||30)*100)+'%';
-}
-
-// ══════════════════════════════════
-// 진입점
-// ══════════════════════════════════
-window.addEventListener('DOMContentLoaded', async () => {
-  await loadConfig();
-  if (ROLE==='teacher') buildTeacherUI();
-  else                  buildStudentUI();
-});
-
-// 전역 노출 (HTML onclick 대응)
-window.savePref    = savePref;
-window.playSound   = playSound;
-window.getVol      = getVol;
-window.speakPromise= speakPromise;
-</script>
-</body>
-</html>
-                  
+  const cd=document.getElementById(
