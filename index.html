@@ -78,16 +78,16 @@ body { font-family:'Noto Sans KR',sans-serif; color:var(--text); -webkit-tap-hig
 
 .section-head { display:flex; align-items:center; gap:10px; margin-bottom:2px; }
 .section-num { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,#3b82f6,#6366f1); color:white; font-size:14px; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 8px rgba(99,102,241,.35); }
-.section-title { font-size:16px; font-weight:900; color:var(--text); }
+.section-title { font-size:18px; font-weight:900; color:var(--text); }
 
 .teacher-card { display:flex; align-items:center; gap:12px; flex-shrink:0; padding:10px 16px; }
-.teacher-lbl { font-size:14px; font-weight:700; color:var(--text2); white-space:nowrap; }
-.teacher-sel { flex:1; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); padding:8px 14px; font-size:15px; font-weight:700; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; cursor:pointer; transition:border-color .2s; }
+.teacher-lbl { font-size:15px; font-weight:700; color:var(--text2); white-space:nowrap; }
+.teacher-sel { flex:1; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); padding:8px 14px; font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; cursor:pointer; transition:border-color .2s; }
 .teacher-sel:focus { border-color:var(--green); }
 
 .class-student-card { display:flex; flex-direction:column; }
 .class-selector { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
-.cls-btn { padding:5px 12px; border-radius:20px; font-size:14px; font-weight:700; border:1.5px solid var(--border); background:white; color:var(--text2); cursor:pointer; transition:all .15s; font-family:'Noto Sans KR',sans-serif; }
+.cls-btn { padding:6px 14px; border-radius:20px; font-size:15px; font-weight:700; border:1.5px solid var(--border); background:white; color:var(--text2); cursor:pointer; transition:all .15s; font-family:'Noto Sans KR',sans-serif; }
 .cls-btn:hover { border-color:var(--green-l); color:var(--green-d); background:#eff6ff; }
 .cls-btn.on { background:linear-gradient(135deg,#3b82f6,#6366f1); color:white; border-color:transparent; box-shadow:0 2px 10px rgba(99,102,241,.3); }
 .cls-empty { font-size:13px; color:var(--text2); padding:4px 0; }
@@ -98,12 +98,12 @@ body { font-family:'Noto Sans KR',sans-serif; color:var(--text); -webkit-tap-hig
 .search-input::placeholder { color:var(--text2); }
 
 .sgrid { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
-.sbtn { padding:5px 3px; border-radius:var(--r); min-height:46px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:white; border:1.5px solid var(--border); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all .15s; }
+.sbtn { padding:6px 3px; border-radius:var(--r); min-height:54px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:white; border:1.5px solid var(--border); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all .15s; }
 @media(max-width:600px){ .sgrid { grid-template-columns:repeat(4,1fr); } }
 .sbtn:hover { border-color:#3b82f6; background:#eff6ff; }
 .sbtn.on { background:linear-gradient(135deg,#3b82f6,#6366f1); border-color:transparent; box-shadow:0 2px 8px rgba(99,102,241,.3); }
-.sbtn-num { font-size:11px; font-weight:700; color:var(--text2); }
-.sbtn-name { font-size:clamp(13px,1.4vw,17px); font-weight:900; line-height:1.1; text-align:center; word-break:keep-all; color:var(--text); }
+.sbtn-num { font-size:12px; font-weight:700; color:var(--text2); }
+.sbtn-name { font-size:clamp(15px,1.6vw,20px); font-weight:900; line-height:1.1; text-align:center; word-break:keep-all; color:var(--text); }
 .sbtn.on .sbtn-num  { color:rgba(255,255,255,.8); }
 .sbtn.on .sbtn-name { color:white; }
 
@@ -572,7 +572,7 @@ function buildTeacherUI() {
         </div>
         <div class="section-head">
           <div class="section-num">1</div>
-          <div class="section-title">학반 · 학생 선택</div>
+          <div class="section-title">학번 · 학생 선택</div>
         </div>
         <div class="card class-student-card">
           <div class="class-selector" id="classSelector"></div>
@@ -826,6 +826,7 @@ function buildStudentUI() {
 
   document.getElementById('app').innerHTML=`
   <div class="start-modal" id="startModal">
+    <div class="start-icon">📣</div>
     <div class="start-title">Student-call 교실</div>
     <div class="start-sub">우리 반을 선택하고 시작하세요<br><span style="font-size:12px;color:var(--text2)">브라우저 보안 정책상 첫 클릭이 필요합니다</span></div>
     <div class="start-class-wrap">
@@ -1049,7 +1050,4 @@ window.savePref    = savePref;
 window.playSound   = playSound;
 window.getVol      = getVol;
 window.speakPromise= speakPromise;
-</script>
-</body>
-</html>
-                    
+</scrip
