@@ -547,15 +547,18 @@ function buildTeacherUI() {
   <div class="main">
     <div id="tv">
       <div class="tl">
+        <div class="section-head">
+          <div class="section-num">1</div>
+          <div class="section-title">선생님 성함 선택</div>
+        </div>
         <div class="card teacher-card">
-          <span class="teacher-lbl">👤 선생님</span>
           <select class="teacher-sel" id="teacherSel" onchange="onTeacherChange()">
             <option value="">선생님을 선택하세요</option>
             ${CONFIG.teachers.map(t => `<option value="${t}">${t} 선생님</option>`).join('')}
           </select>
         </div>
         <div class="section-head">
-          <div class="section-num">1</div>
+          <div class="section-num">2</div>
           <div class="section-title">학번 · 학생 선택</div>
         </div>
         <div class="card class-student-card">
@@ -568,7 +571,7 @@ function buildTeacherUI() {
       </div>
       <div class="tr">
         <div class="section-head">
-          <div class="section-num">2</div>
+          <div class="section-num">3</div>
           <div class="section-title">호출하기</div>
         </div>
         <div class="card call-card">
