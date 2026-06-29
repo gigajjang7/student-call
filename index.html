@@ -147,7 +147,7 @@ body { font-family:'Noto Sans KR',sans-serif; color:var(--text); -webkit-tap-hig
 .s-main { flex:1; position:relative; overflow:hidden; }
 .s-standby { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
 .s-classname { font-size:clamp(20px,3vw,36px); font-weight:900; color:var(--text2); }
-.s-clock { font-size:clamp(80px,14vw,160px); font-weight:900; color:var(--text); letter-spacing:-4px; line-height:1; text-shadow:0 0 40px rgba(14,165,233,.2); }
+.s-clock { font-size:150px; font-weight:900; color:var(--text); letter-spacing:-4px; line-height:1; text-shadow:0 0 40px rgba(14,165,233,.2); }
 .s-wait { font-size:clamp(14px,2vw,22px); font-weight:500; color:var(--text2); }
 .s-settings { position:absolute; bottom:16px; right:16px; opacity:.65; transition:opacity .3s; }
 .s-settings:hover { opacity:1; }
@@ -323,7 +323,7 @@ function loadVoices() {
   // 한국어 먼저, 그 다음 나머지
   const ko = voices.filter(v => v.lang.startsWith('ko'));
   const others = voices.filter(v => !v.lang.startsWith('ko'));
-  [...ko, ...others].forEach(v => {
+  [...ko].forEach(v => {
     const opt = document.createElement('option');
     opt.value = v.name;
     opt.textContent = v.name + ' (' + v.lang + ')';
