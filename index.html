@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>유콜</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #1b3329;
+  --bg-sec:   #132820;
+  --card:     #ffffff;
+  --card2:    #f2f8f5;
+  --green:    #3d8b5f;
+  --green-d:  #2a6b45;
+  --green-l:  #5eac7f;
+  --blue:     #4a9fd4;
+  --blue-d:   #2d7db3;
+  --yellow:   #f5c842;
+  --yellow-d: #d4a820;
+  --text:     #1a3329;
+  --text2:    #5a8070;
+  --text-l:   rgba(255,255,255,0.88);
+  --text-m:   rgba(255,255,255,0.48);
+  --border:   #deeae4;
+  --r:        12px;
+  --r-lg:     18px;
+  --r-xl:     26px;
+  --shadow:   0 2px 14px rgba(0,0,0,0.10);
+}
+html,body { width:100%; height:100%; overflow:hidden; background:var(--bg); }
+body { font-family:'Noto Sans KR',sans-serif; color:var(--text); -webkit-tap-highlight-color:transparent; }
+#app { width:100vw; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+
+/* ── HEADER ── */
+.header { background:var(--bg-sec); border-bottom:1px solid rgba(255,255,255,.07); padding:0 20px; height:56px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.logo { font-size:22px; font-weight:900; letter-spacing:-1.5px; color:white; }
+.logo em { font-style:normal; color:var(--green-l); }
+.logo-s em { color:var(--yellow); }
+.badge { font-size:12px; font-weight:600; color:rgba(255,255,255,.52); background:rgba(255,255,255,.08); border-radius:20px; padding:4px 12px; margin-left:10px; }
+.chip { font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; }
+.chip.t { background:rgba(94,172,127,.18); color:var(--green-l); border:1px solid rgba(94,172,127,.28); }
+.chip.s { background:rgba(245,200,66,.18); color:var(--yellow); border:1px solid rgba(245,200,66,.28); }
+.hright { display:flex; align-items:center; gap:8px; }
+.live { width:8px; height:8px; border-radius:50%; background:#6dbe9a; animation:blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+.icon-btn { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.7); border-radius:10px; padding:6px 12px; font-size:12px; font-weight:700; cursor:pointer; transition:all .15s; font-family:'Noto Sans KR',sans-serif; }
+.icon-btn:hover { background:rgba(255,255,255,.15); color:white; }
+
+/* ── STEP HEADER ── */
+.step-header { display:flex; align-items:center; gap:10px; padding:0 2px; flex-shrink:0; }
+.step-num { font-size:10px; font-weight:700; letter-spacing:1.2px; color:var(--green-l); background:rgba(94,172,127,.15); border:1px solid rgba(94,172,127,.25); padding:3px 10px; border-radius:20px; }
+.step-title { font-size:13px; font-weight:700; color:var(--text-l); }
+
+/* ── CARD ── */
+.card { background:var(--card); border-radius:var(--r-lg); padding:18px 20px; box-shadow:var(--shadow); }
+.sec { font-size:10px; font-weight:700; color:var(--text2); letter-spacing:.8px; text-transform:uppercase; margin-bottom:10px; }
+
+/* ── TOAST ── */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:rgba(8,20,14,.92); color:#fff; padding:10px 22px; border-radius:20px; font-size:13px; font-weight:500; opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap; z-index:9998; border:1px solid rgba(255,255,255,.1); }
+.toast.show { opacity:1; }
+
+/* ══ 교사 UI ══ */
+.main { flex:1; padding:16px 20px; overflow:hidden; display:flex; }
+#tv { display:flex; gap:14px; width:100%; height:100%; }
+.tl { flex:1.6; display:flex; flex-direction:column; gap:10px; min-height:0; }
+.tr { flex:1; display:flex; flex-direction:column; gap:10px; min-height:0; overflow-y:auto; }
+
+.teacher-card { display:flex; align-items:center; gap:12px; flex-shrink:0; padding:12px 18px; }
+.teacher-lbl { font-size:12px; font-weight:700; color:var(--text2); white-space:nowrap; }
+.teacher-sel { flex:1; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); padding:9px 14px; font-size:14px; font-weight:700; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; cursor:pointer; transition:border-color .2s; }
+.teacher-sel:focus { border-color:var(--green); }
+
+.class-student-card { flex:1; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+.class-selector { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; flex-shrink:0; }
+.cls-btn { padding:7px 16px; border-radius:20px; font-size:13px; font-weight:700; border:1.5px solid var(--border); background:white; color:var(--text2); cursor:pointer; transition:all .15s; font-family:'Noto Sans KR',sans-serif; }
+.cls-btn:hover { border-color:var(--green-l); color:var(--green-d); }
+.cls-btn.on { background:var(--green); color:white; border-color:var(--green); box-shadow:0 2px 10px rgba(61,139,95,.3); }
+.cls-empty { font-size:12px; color:var(--text2); padding:4px 0; }
+
+.search-wrap { margin-bottom:10px; flex-shrink:0; }
+.search-input { width:100%; padding:10px 16px; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); font-size:13px; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; transition:border-color .2s; }
+.search-input:focus { border-color:var(--green); }
+.search-input::placeholder { color:var(--text2); }
+
+.sgrid { display:grid; grid-template-columns:repeat(5,1fr); gap:7px; flex:1; overflow-y:auto; min-height:0; }
+.sbtn { padding:10px 6px; border-radius:var(--r); min-height:66px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; background:var(--card2); border:1.5px solid var(--border); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all .15s; }
+.sbtn:hover { border-color:var(--green-l); background:#edf7f1; }
+.sbtn.on { background:var(--green); border-color:var(--green); box-shadow:0 3px 10px rgba(61,139,95,.3); }
+.sbtn-num { font-size:11px; font-weight:700; color:var(--text2); }
+.sbtn-name { font-size:clamp(14px,1.5vw,18px); font-weight:900; line-height:1.1; text-align:center; word-break:keep-all; color:var(--text); }
+.sbtn.on .sbtn-num  { color:rgba(255,255,255,.75); }
+.sbtn.on .sbtn-name { color:white; }
+
+.call-card { flex-shrink:0; }
+.sel-info { font-size:14px; font-weight:700; color:var(--green-d); margin-bottom:12px; padding:10px 14px; background:var(--card2); border-radius:10px; border-left:3px solid var(--green); }
+.msg-input { width:100%; padding:11px 14px; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); font-size:13px; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; resize:none; height:74px; display:block; transition:border-color .2s; }
+.msg-input:focus { border-color:var(--green); }
+.msg-input::placeholder { color:var(--text2); }
+.tts-hint { font-size:11px; color:var(--green-d); margin-top:7px; padding:5px 10px; background:rgba(61,139,95,.07); border-radius:8px; text-align:center; }
+.call-btn { width:100%; padding:14px; background:linear-gradient(135deg,var(--blue),var(--blue-d)); color:#fff; border:none; border-radius:var(--r-lg); font-size:17px; font-weight:900; font-family:'Noto Sans KR',sans-serif; cursor:pointer; box-shadow:0 4px 16px rgba(74,159,212,.35); transition:all .15s; margin-top:12px; display:block; }
+.call-btn:hover { transform:translateY(-1px); box-shadow:0 6px 22px rgba(74,159,212,.45); }
+.call-btn:active { transform:scale(.98); }
+.call-btn:disabled { background:#b0c4bc; box-shadow:none; cursor:not-allowed; transform:none; }
+
+.resv-area { margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+.resv-hint { font-size:11px; color:var(--text2); line-height:1.7; margin-bottom:10px; background:var(--card2); border-radius:10px; padding:8px 12px; }
+.resv-row { display:flex; gap:8px; align-items:center; }
+.resv-time-input { flex:1; padding:9px 12px; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); font-size:14px; font-weight:700; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; }
+.resv-add-btn { padding:9px 14px; border-radius:var(--r); font-size:12px; font-weight:700; white-space:nowrap; color:var(--yellow-d); background:rgba(212,168,32,.1); border:1.5px solid rgba(212,168,32,.28); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all .15s; }
+.resv-add-btn:hover { background:rgba(212,168,32,.18); }
+
+.resv-panel { flex-shrink:0; }
+.resv-list { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+.resv-item { display:flex; align-items:center; gap:8px; padding:9px 12px; background:var(--card2); border-radius:10px; border:1px solid var(--border); }
+.resv-badge { font-size:12px; font-weight:900; color:var(--yellow-d); flex-shrink:0; min-width:42px; background:rgba(212,168,32,.1); padding:2px 7px; border-radius:7px; }
+.resv-info { flex:1; min-width:0; }
+.resv-name { font-size:13px; font-weight:700; }
+.resv-msg  { font-size:11px; color:var(--text2); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.resv-del  { background:none; border:none; cursor:pointer; font-size:15px; color:var(--text2); padding:2px 4px; border-radius:6px; transition:color .15s; }
+.resv-del:hover { color:#e06060; }
+
+.rclog-card { flex:1; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+.rclog { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px; min-height:0; margin-top:10px; }
+.rc-item { background:var(--card2); border-radius:10px; padding:9px 13px; display:flex; align-items:flex-start; gap:10px; flex-shrink:0; border:1px solid var(--border); }
+.rc-time  { font-size:11px; color:var(--text2); flex-shrink:0; padding-top:2px; font-weight:700; }
+.rc-name  { font-size:13px; font-weight:700; }
+.rc-msg   { font-size:11px; color:var(--text2); margin-top:3px; }
+.rc-empty { font-size:12px; color:var(--text2); padding:8px 0; }
+
+/* ══ 학생 UI ══ */
+.s-main { flex:1; position:relative; overflow:hidden; }
+.s-standby { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
+.s-classname { font-size:clamp(20px,3vw,36px); font-weight:900; color:rgba(255,255,255,.5); }
+.s-clock { font-size:clamp(80px,14vw,160px); font-weight:900; color:white; letter-spacing:-4px; line-height:1; text-shadow:0 0 40px rgba(94,172,127,.22); }
+.s-wait { font-size:clamp(14px,2vw,22px); font-weight:500; color:rgba(255,255,255,.35); }
+.s-settings { position:absolute; bottom:16px; right:16px; opacity:.65; transition:opacity .3s; }
+.s-settings:hover { opacity:1; }
+.tts-status { font-size:11px; color:rgba(255,255,255,.5); text-align:right; margin-bottom:4px; min-height:14px; }
+.spanel { background:rgba(8,20,14,.9); border:1px solid rgba(255,255,255,.1); border-radius:var(--r); backdrop-filter:blur(16px); padding:14px 16px; width:228px; }
+.srow { display:flex; align-items:center; gap:8px; }
+.slbl { font-size:11px; font-weight:700; color:rgba(255,255,255,.55); white-space:nowrap; }
+.ssel { flex:1; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:8px; padding:7px 9px; font-size:11px; font-family:'Noto Sans KR',sans-serif; color:white; outline:none; cursor:pointer; min-width:0; }
+.ssel option { background:#1b3329; color:white; }
+.vrow { display:flex; align-items:center; gap:8px; margin-top:8px; }
+.vsldr { flex:1; -webkit-appearance:none; height:4px; background:rgba(255,255,255,.18); border-radius:2px; outline:none; cursor:pointer; }
+.vsldr::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--yellow); cursor:pointer; }
+.vval { font-size:11px; font-weight:700; color:var(--yellow); min-width:18px; text-align:right; }
+.tbtn2 { width:100%; text-align:center; padding:7px 10px; border-radius:8px; font-size:11px; font-weight:700; color:rgba(255,255,255,.65); background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all .15s; }
+.tbtn2:hover { background:rgba(255,255,255,.14); color:white; }
+
+.s-alert { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; padding:24px; }
+.s-alert-inner { background:white; border-radius:var(--r-xl); border:3px solid var(--yellow); padding:40px 52px; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center; min-width:55vw; max-width:90vw; animation:borderpulse 1.8s ease-in-out infinite; box-shadow:0 0 60px rgba(245,200,66,.12),0 20px 60px rgba(0,0,0,.35); }
+@keyframes borderpulse { 0%,100%{border-color:var(--yellow);box-shadow:0 0 40px rgba(245,200,66,.12),0 20px 60px rgba(0,0,0,.35);} 50%{border-color:var(--yellow-d);box-shadow:0 0 80px rgba(245,200,66,.32),0 20px 60px rgba(0,0,0,.35);} }
+.s-lbl  { font-size:13px; font-weight:700; color:#7a5010; background:var(--yellow); padding:6px 22px; border-radius:20px; }
+.s-num  { font-size:clamp(18px,2.5vw,32px); font-weight:700; color:var(--text2); }
+.s-name { font-size:clamp(72px,12vw,150px); font-weight:900; color:var(--text); line-height:1; letter-spacing:-4px; }
+.s-san  { font-size:clamp(30px,5vw,60px); font-weight:900; color:var(--text2); margin-top:-6px; }
+.s-msg  { font-size:clamp(18px,3vw,36px); font-weight:700; color:var(--blue-d); background:var(--card2); padding:10px 28px; border-radius:14px; }
+.s-teacher  { font-size:clamp(16px,2.5vw,30px); font-weight:700; color:var(--text2); background:var(--card2); padding:7px 24px; border-radius:12px; }
+.s-countdown{ font-size:clamp(13px,1.8vw,22px); font-weight:700; color:var(--text2); }
+.s-bar-wrap { width:100%; max-width:380px; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+.s-bar { height:100%; background:var(--yellow-d); border-radius:3px; transition:width 1s linear; }
+.s-queue { font-size:13px; font-weight:700; color:#7a5010; background:var(--yellow); padding:5px 16px; border-radius:20px; }
+
+/* ══ 시작 모달 ══ */
+.start-modal { position:fixed; inset:0; background:rgba(12,26,19,.97); backdrop-filter:blur(8px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; z-index:9999; text-align:center; padding:32px; overflow-y:auto; }
+.start-icon  { font-size:52px; animation:bellShake 2s ease-in-out infinite; }
+@keyframes bellShake { 0%,100%{transform:rotate(0);} 10%,30%{transform:rotate(-14deg);} 20%,40%{transform:rotate(14deg);} 50%{transform:rotate(0);} }
+.start-title { font-size:24px; font-weight:900; color:white; }
+.start-sub   { font-size:14px; color:rgba(255,255,255,.55); line-height:1.8; }
+.start-class-wrap { width:100%; max-width:480px; }
+.start-class-lbl  { font-size:10px; font-weight:700; color:rgba(255,255,255,.4); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; }
+.start-class-grid { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-height:180px; overflow-y:auto; padding:4px; }
+.start-cls-btn { padding:10px 20px; border-radius:20px; font-size:14px; font-weight:700; color:rgba(255,255,255,.55); background:rgba(255,255,255,.07); border:1.5px solid rgba(255,255,255,.13); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all .15s; }
+.start-cls-btn:hover { background:rgba(255,255,255,.13); color:white; }
+.start-cls-btn.on { background:var(--yellow); color:#7a5010; border-color:var(--yellow); font-weight:900; }
+.start-btn { padding:17px 54px; background:linear-gradient(135deg,var(--green-l),var(--green-d)); color:white; border:none; border-radius:var(--r-lg); font-size:20px; font-weight:900; font-family:'Noto Sans KR',sans-serif; cursor:pointer; box-shadow:0 6px 24px rgba(61,139,95,.4); transition:transform .15s; }
+.start-btn:hover  { transform:translateY(-2px); }
+.start-btn:active { transform:scale(.97); }
+.start-note { font-size:12px; color:rgba(255,255,255,.35); }
+
+/* ══ 설정 모달 ══ */
+.setup-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(6px); z-index:10000; display:none; align-items:center; justify-content:center; padding:20px; }
+.setup-overlay.open { display:flex; }
+.setup-modal { background:var(--card); border-radius:var(--r-xl); padding:0; width:100%; max-width:560px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.4); }
+.setup-header { padding:20px 24px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); flex-shrink:0; }
+.setup-header h2 { font-size:16px; font-weight:900; color:var(--text); }
+.setup-close { background:none; border:none; font-size:20px; color:var(--text2); cursor:pointer; padding:4px; line-height:1; }
+.stabs { display:flex; gap:6px; padding:14px 20px 0; flex-shrink:0; }
+.stab { padding:8px 16px; border-radius:10px 10px 0 0; font-size:13px; font-weight:700; color:var(--text2); background:var(--card2); border:none; cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all .15s; border-bottom:2px solid transparent; }
+.stab.on { color:var(--green-d); background:white; border-bottom-color:var(--green); }
+.setup-body { flex:1; overflow-y:auto; padding:20px 24px; }
+.setup-hint { font-size:12px; color:var(--text2); margin-bottom:10px; line-height:1.6; background:var(--card2); padding:8px 12px; border-radius:8px; }
+.cfg-label { font-size:12px; font-weight:700; color:var(--text2); margin-bottom:6px; display:block; margin-top:14px; }
+.cfg-label:first-child { margin-top:0; }
+.cfg-input { width:100%; padding:10px 14px; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); font-size:14px; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; transition:border-color .2s; }
+.cfg-input:focus { border-color:var(--green); }
+.cfg-textarea { width:100%; padding:10px 14px; background:var(--card2); border:1.5px solid var(--border); border-radius:var(--r); font-size:13px; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; resize:vertical; height:140px; transition:border-color .2s; line-height:1.8; }
+.cfg-textarea:focus { border-color:var(--green); }
+.parse-status { font-size:12px; color:var(--green-d); margin-top:6px; font-weight:700; }
+.setup-footer { padding:16px 24px; border-top:1px solid var(--border); flex-shrink:0; display:flex; gap:8px; }
+.setup-save-btn { flex:1; padding:14px; background:linear-gradient(135deg,var(--green-l),var(--green-d)); color:white; border:none; border-radius:var(--r-lg); font-size:15px; font-weight:900; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:all .15s; }
+.setup-save-btn:hover { transform:translateY(-1px); }
+.setup-export-btn { padding:14px 18px; background:var(--card2); color:var(--text2); border:1.5px solid var(--border); border-radius:var(--r-lg); font-size:13px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:all .15s; }
+
+/* ══ 푸터 ══ */
+.app-footer { background:rgba(0,0,0,.18); border-top:1px solid rgba(255,255,255,.06); padding:7px 20px; text-align:center; flex-shrink:0; font-size:11px; color:rgba(255,255,255,.3); line-height:1.7; }
+.app-footer a { color:rgba(255,255,255,.4); text-decoration:none; font-weight:500; transition:color .2s; }
+.app-footer a:hover { color:var(--green-l); }
+.app-footer .sep { margin:0 6px; opacity:.35; }
+
+/* ══ Firebase 오류 ══ */
+.fb-error { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; gap:16px; padding:32px; text-align:center; color:white; }
+.fb-error .err-icon { font-size:52px; }
+.fb-error h2 { font-size:20px; font-weight:900; }
+.fb-error p { font-size:14px; color:rgba(255,255,255,.6); line-height:1.8; max-width:400px; }
+.fb-error code { display:block; background:rgba(255,255,255,.08); border-radius:10px; padding:12px 16px; font-size:12px; color:var(--green-l); margin-top:8px; text-align:left; line-height:1.9; font-family:monospace; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<!-- 설정 모달 -->
+<div class="setup-overlay" id="setupOverlay">
+  <div class="setup-modal">
+    <div class="setup-header">
+      <h2>⚙️ 유콜 설정</h2>
+      <button class="setup-close" onclick="closeSetup()">✕</button>
+    </div>
+    <div class="stabs">
+      <button class="stab on" onclick="switchTab('school',this)">학교 정보</button>
+      <button class="stab" onclick="switchTab('teachers',this)">교사 목록</button>
+      <button class="stab" onclick="switchTab('students',this)">학생 목록</button>
+    </div>
+    <div class="setup-body">
+      <!-- 학교 정보 -->
+      <div id="tab-school">
+        <label class="cfg-label">학교명</label>
+        <input id="cfgSchoolName" class="cfg-input" placeholder="예: 광평중학교">
+        <label class="cfg-label" style="margin-top:14px">호출 자동 닫힘 시간 (초)</label>
+        <input id="cfgAutoDismiss" class="cfg-input" type="number" value="30" min="5" max="120">
+      </div>
+      <!-- 교사 목록 -->
+      <div id="tab-teachers" style="display:none">
+        <div class="setup-hint">한 줄에 한 명씩 입력하세요 (성함만, 선생님 자동 추가)</div>
+        <textarea id="cfgTeachers" class="cfg-textarea" placeholder="김주현&#10;이영희&#10;박민수&#10;최준혁"></textarea>
+      </div>
+      <!-- 학생 목록 -->
+      <div id="tab-students" style="display:none">
+        <div class="setup-hint">
+          엑셀에서 <b>학년 · 반 · 번호 · 이름</b> 열을 선택해 복사(Ctrl+C) 후 아래에 붙여넣으세요.<br>
+          쉼표(CSV)나 탭으로 구분된 형식 모두 지원합니다.
+        </div>
+        <textarea id="cfgStudents" class="cfg-textarea" placeholder="1	1	1	홍길동&#10;1	1	2	이영희&#10;1	2	1	박민수"
+          oninput="previewStudents()"></textarea>
+        <div class="parse-status" id="parseStatus"></div>
+      </div>
+    </div>
+    <div class="setup-footer">
+      <button class="setup-export-btn" onclick="exportConfig()">⬇ 내보내기</button>
+      <button class="setup-save-btn" onclick="saveConfig()">💾 저장하기</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ══════════════════════════════════════════════════════════════════
+//  ★★★  Firebase 설정  ★★★
+//  Firebase Console(console.firebase.google.com) →
+//  프로젝트 선택 → 프로젝트 설정(톱니바퀴) → 내 앱 → SDK 구성 →
+//  아래 값들을 복사해서 붙여넣으세요
+// ══════════════════════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyDBW2zaZo4oZs9twEAvxWuNzyI9kz1diow",
+  authDomain:        "student-call-b22fe.firebaseapp.com",
+  databaseURL:       "https://student-call-b22fe-default-rtdb.firebaseio.com",
+  projectId:         "student-call-b22fe",
+  storageBucket:     "student-call-b22fe.firebasestorage.app",
+  messagingSenderId: "682790595347",
+  appId:             "1:682790595347:web:710d487e8b23ac4a51c8e6"
+};
+// ══════════════════════════════════════════════════════════════════
+
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, push, set, get, update, remove, onChildAdded, onValue }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// Firebase 초기화
+let db;
+try {
+  const fbApp = initializeApp(FIREBASE_CONFIG);
+  db = getDatabase(fbApp);
+} catch(e) {
+  document.getElementById('app').innerHTML = `
+    <div class="fb-error">
+      <div class="err-icon">⚠️</div>
+      <h2>Firebase 설정이 필요합니다</h2>
+      <p>HTML 파일 안의 <b>FIREBASE_CONFIG</b> 부분에 Firebase 프로젝트 정보를 입력해야 합니다.<br>
+         자세한 방법은 아래 가이드를 참고하세요.</p>
+      <code>
+        1. console.firebase.google.com 접속<br>
+        2. 프로젝트 만들기 → 웹 앱 추가<br>
+        3. SDK 구성 복사 → 이 파일의 FIREBASE_CONFIG에 붙여넣기<br>
+        4. Realtime Database 생성 → 규칙을 read/write: true로 설정
+      </code>
+    </div>`;
+  throw e;
+}
+
+// ── 전역 상태 ──
+const ROLE = new URLSearchParams(location.search).get('role') || 'student';
+let CONFIG = { schoolName: '', autoDismiss: 30, teachers: [], students: [] };
+let _selTeacher = '', _lastGrade = '', _lastClassNum = '';
+let selStudent = null, _allStudents = [], _rcItems = [], _reservations = [];
+
+// ── 설정 로드 ──
+async function loadConfig() {
+  try {
+    const snap = await get(ref(db, 'yucall/config'));
+    if (snap.exists()) {
+      const d = snap.val();
+      CONFIG = {
+        schoolName:  d.schoolName  || '',
+        autoDismiss: d.autoDismiss || 30,
+        teachers:    d.teachers  ? Object.values(d.teachers)  : [],
+        students:    d.students  ? Object.values(d.students)  : []
+      };
+    }
+  } catch(e) { console.warn('Config load:', e); }
+}
+
+// ══════════════════════════════════
+// TTS — Web Speech API (브라우저 내장)
+// ══════════════════════════════════
+let koVoice = null;
+function loadVoices() {
+  const v = speechSynthesis.getVoices();
+  koVoice = v.find(x => x.lang === 'ko-KR') || v.find(x => x.lang.startsWith('ko')) || null;
+}
+if (window.speechSynthesis) {
+  speechSynthesis.addEventListener('voiceschanged', loadVoices);
+  loadVoices();
+}
+
+function getTtsVol() {
+  const el = document.getElementById('ttsVolSlider');
+  return el ? parseInt(el.value) / 10 : 1.0;
+}
+
+function speakPromise(text) {
+  return new Promise(resolve => {
+    if (!window.speechSynthesis) { resolve(); return; }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang    = 'ko-KR';
+    u.rate    = 0.9;
+    u.volume  = getTtsVol();
+    if (koVoice) u.voice = koVoice;
+    u.onend   = resolve;
+    u.onerror = resolve;
+    // 타임아웃 폴백 (일부 브라우저에서 onend 미발생)
+    const timeout = setTimeout(resolve, text.length * 200 + 2000);
+    u.onend = () => { clearTimeout(timeout); resolve(); };
+    speechSynthesis.speak(u);
+  });
+}
+
+// ══════════════════════════════════
+// 오디오 (Web Audio API)
+// ══════════════════════════════════
+let audioCtx = null;
+function getAC() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function getVol()    { const el = document.getElementById('volSlider');    return el ? parseInt(el.value) / 12 : 0.4; }
+function getRepeat() { const el = document.getElementById('repeatSelect'); return el ? Math.max(1, Math.min(3, parseInt(el.value))) : 2; }
+
+function playSound(idx, v) {
+  const ac = getAC();
+  if (idx===0) { [[1046.5,0],[783.99,300]].forEach(([f,d])=>{setTimeout(()=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,ac.currentTime);g.gain.linearRampToValueAtTime(v,ac.currentTime+0.01);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+1.0);o.start();o.stop(ac.currentTime+1.0);},d)}); }
+  else if (idx===1) { [[880,0],[660,350]].forEach(([f,d])=>{setTimeout(()=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,ac.currentTime);g.gain.linearRampToValueAtTime(v,ac.currentTime+0.01);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.9);o.start();o.stop(ac.currentTime+0.9);},d)}); }
+  else if (idx===2) { [523.25,659.25,783.99].forEach((f,i)=>{setTimeout(()=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,ac.currentTime);g.gain.linearRampToValueAtTime(v*.85,ac.currentTime+0.01);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.5);o.start();o.stop(ac.currentTime+0.5);},i*200)}); }
+  else if (idx===3) { [0,200].forEach(d=>{setTimeout(()=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.setValueAtTime(900,ac.currentTime);o.frequency.exponentialRampToValueAtTime(300,ac.currentTime+0.07);g.gain.setValueAtTime(v*1.2,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.09);o.start();o.stop(ac.currentTime+0.1);},d)}); }
+  else if (idx===4) { [[1400,0],[1100,280]].forEach(([f,d])=>{setTimeout(()=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.setValueAtTime(f,ac.currentTime);o.frequency.exponentialRampToValueAtTime(f*.5,ac.currentTime+0.18);g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.22);o.start();o.stop(ac.currentTime+0.25);},d)}); }
+  else if (idx===5) { [0,1.05,2.1].forEach(delay=>{const t=ac.currentTime+delay;[[830,1.0,1.2],[1245,.5,.9],[1660,.28,.7],[2075,.14,.5],[2490,.07,.35]].forEach(([f,a,dur])=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*a,t+0.006);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.start(t);o.stop(t+dur+0.05);})}); }
+  else if (idx===6) { [[0,.4],[.6,.4],[1.6,.4],[2.2,.4]].forEach(([s,dur])=>{const t=ac.currentTime+s;[425,480].forEach(f=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*.55,t+.015);g.gain.setValueAtTime(v*.55,t+dur-.02);g.gain.linearRampToValueAtTime(0,t+dur);o.start(t);o.stop(t+dur+.02);})}); }
+  else if (idx===7) { [0,.75,1.4,1.95,2.4,2.75].forEach(s=>{const t=ac.currentTime+s;[880,1108].forEach(f=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='square';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*.38,t+.012);g.gain.setValueAtTime(v*.38,t+.27);g.gain.linearRampToValueAtTime(0,t+.30);o.start(t);o.stop(t+.32);})}); }
+}
+
+async function playAlertNTimes(text, count) {
+  const soundIdx = parseInt(document.getElementById('soundSelect')?.value || '0');
+  for (let i = 0; i < count; i++) {
+    playSound(soundIdx, getVol());
+    await new Promise(r => setTimeout(r, 600));
+    await speakPromise(text);
+    if (i < count - 1) await new Promise(r => setTimeout(r, 400));
+  }
+}
+
+// ══════════════════════════════════
+// 유틸
+// ══════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+function nowHHMM() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function savePref() {
+  try {
+    const ss = document.getElementById('soundSelect'),
+          vs = document.getElementById('volSlider'),
+          tv = document.getElementById('ttsVolSlider'),
+          rp = document.getElementById('repeatSelect');
+    if(ss) localStorage.setItem('yc_s', ss.value);
+    if(vs) localStorage.setItem('yc_v', vs.value);
+    if(tv) localStorage.setItem('yc_tv', tv.value);
+    if(rp) localStorage.setItem('yc_rp', rp.value);
+  } catch(e) {}
+}
+function loadPref() {
+  try {
+    const s=localStorage.getItem('yc_s'), v=localStorage.getItem('yc_v'),
+          tv=localStorage.getItem('yc_tv'), rp=localStorage.getItem('yc_rp');
+    const ss=document.getElementById('soundSelect'), vs=document.getElementById('volSlider'),
+          vv=document.getElementById('vval'), tvs=document.getElementById('ttsVolSlider'),
+          tvv=document.getElementById('tvval'), rps=document.getElementById('repeatSelect');
+    if(s&&ss) ss.value=s;
+    if(v&&vs){vs.value=v;if(vv)vv.textContent=v;}
+    if(tv&&tvs){tvs.value=tv;if(tvv)tvv.textContent=tv;}
+    if(rp&&rps) rps.value=rp;
+  } catch(e) {}
+}
+
+// ══════════════════════════════════
+// 설정 모달
+// ══════════════════════════════════
+function openSetup() {
+  // 현재값 채우기
+  document.getElementById('cfgSchoolName').value  = CONFIG.schoolName;
+  document.getElementById('cfgAutoDismiss').value = CONFIG.autoDismiss;
+  document.getElementById('cfgTeachers').value    = CONFIG.teachers.join('\n');
+  document.getElementById('cfgStudents').value    = CONFIG.students
+    .map(s => `${s.grade}\t${s.classNum}\t${s.num}\t${s.name}`).join('\n');
+  document.getElementById('parseStatus').textContent = '';
+  document.getElementById('setupOverlay').classList.add('open');
+}
+window.openSetup = openSetup;
+
+function closeSetup() {
+  document.getElementById('setupOverlay').classList.remove('open');
+}
+window.closeSetup = closeSetup;
+
+function switchTab(name, btn) {
+  ['school','teachers','students'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t === name ? '' : 'none';
+  });
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+}
+window.switchTab = switchTab;
+
+function previewStudents() {
+  const raw = document.getElementById('cfgStudents').value;
+  const parsed = parseStudentCSV(raw);
+  document.getElementById('parseStatus').textContent =
+    parsed.length > 0 ? `✅ ${parsed.length}명 인식됨` : '입력을 확인해주세요';
+}
+window.previewStudents = previewStudents;
+
+function parseStudentCSV(raw) {
+  const lines = raw.trim().split('\n').filter(l => l.trim());
+  const result = [];
+  lines.forEach(line => {
+    const parts = line.split(/[\t,]/).map(p => p.trim()).filter(Boolean);
+    if (parts.length >= 4) {
+      result.push({ grade: parts[0], classNum: parts[1], num: parts[2], name: parts[3] });
+    }
+  });
+  return result;
+}
+
+async function saveConfig() {
+  const schoolName  = document.getElementById('cfgSchoolName').value.trim();
+  const autoDismiss = parseInt(document.getElementById('cfgAutoDismiss').value) || 30;
+  const teachers    = document.getElementById('cfgTeachers').value
+    .split('\n').map(t => t.trim()).filter(Boolean);
+  const students    = parseStudentCSV(document.getElementById('cfgStudents').value);
+
+  if (!schoolName)        { showToast('학교명을 입력해주세요'); return; }
+  if (!teachers.length)   { showToast('교사 목록을 입력해주세요'); return; }
+  if (!students.length)   { showToast('학생 목록을 입력해주세요'); return; }
+
+  try {
+    // 객체로 변환 (Firebase 배열 대신 객체 권장)
+    const teachersObj = {}, studentsObj = {};
+    teachers.forEach((t,i)  => teachersObj[i]  = t);
+    students.forEach((s,i)  => studentsObj[i]  = s);
+
+    await set(ref(db, 'yucall/config'), {
+      schoolName, autoDismiss, teachers: teachersObj, students: studentsObj
+    });
+
+    CONFIG = { schoolName, autoDismiss, teachers, students };
+    showToast('✅ 저장 완료! 페이지를 새로고침하세요');
+    closeSetup();
+  } catch(e) {
+    showToast('저장 실패: ' + e.message);
+  }
+}
+window.saveConfig = saveConfig;
+
+function exportConfig() {
+  const data = JSON.stringify(CONFIG, null, 2);
+  const a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(data);
+  a.download = 'yucall-config.json';
+  a.click();
+}
+window.exportConfig = exportConfig;
+
+// ══════════════════════════════════
+// 교사 UI
+// ══════════════════════════════════
+function buildTeacherUI() {
+  document.getElementById('app').innerHTML = `
+  <header class="header">
+    <div style="display:flex;align-items:center">
+      <div class="logo logo-t">유<em>콜</em></div>
+      <div class="badge" id="tBadge">${CONFIG.schoolName}</div>
+    </div>
+    <div class="hright">
+      <button class="icon-btn" onclick="openSetup()">⚙ 설정</button>
+      <div class="chip t">교사용</div>
+    </div>
+  </header>
+  <div class="main">
+    <div id="tv">
+      <div class="tl">
+        <div class="card teacher-card">
+          <span class="teacher-lbl">👤 선생님</span>
+          <select class="teacher-sel" id="teacherSel" onchange="onTeacherChange()">
+            <option value="">선생님을 선택하세요</option>
+            ${CONFIG.teachers.map(t => `<option value="${t}">${t} 선생님</option>`).join('')}
+          </select>
+        </div>
+        <div class="step-header">
+          <span class="step-num">STEP 01</span>
+          <span class="step-title">학반 · 학생 선택</span>
+        </div>
+        <div class="card class-student-card">
+          <div class="class-selector" id="classSelector"></div>
+          <div class="search-wrap" id="searchWrap" style="display:none">
+            <input class="search-input" id="searchInput" placeholder="🔍 이름 또는 번호로 검색..." oninput="filterStudents(this.value)">
+          </div>
+          <div class="sgrid" id="studentGrid"></div>
+        </div>
+      </div>
+      <div class="tr">
+        <div class="step-header">
+          <span class="step-num">STEP 02</span>
+          <span class="step-title">호출하기</span>
+        </div>
+        <div class="card call-card">
+          <div class="sel-info" id="selInfo">학생을 선택해주세요</div>
+          <textarea class="msg-input" id="msgInput" placeholder="메시지 (선택사항)&#10;예: 시험지 가지고 오세요"></textarea>
+          <div class="tts-hint">🗣️ 메시지 입력 시 TTS로 함께 음성 송출됩니다</div>
+          <button class="call-btn" id="callBtn" onclick="submitCall()">📣 호출하기</button>
+          <div class="resv-area">
+            <div class="resv-hint">⏰ 예약 호출 — 수업 종료 후 1~2분 뒤를 권장합니다</div>
+            <div class="resv-row">
+              <input type="time" class="resv-time-input" id="resvTimeInput">
+              <button class="resv-add-btn" onclick="addReservation()">예약 추가</button>
+            </div>
+          </div>
+        </div>
+        <div class="card resv-panel" id="resvPanel" style="display:none">
+          <div class="sec">⏰ 예약 목록</div>
+          <div class="resv-list" id="resvList"></div>
+        </div>
+        <div class="card rclog-card">
+          <div class="sec">📋 최근 호출</div>
+          <div class="rclog" id="rcLog"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="app-footer">
+    Developed by 김주현 (광평중) <span class="sep">·</span>
+    📸 <a href="https://www.instagram.com/kimju.zip" target="_blank">@kimju.zip</a>
+  </footer>`;
+
+  _allStudents = CONFIG.students || [];
+  try {
+    const sc = localStorage.getItem('yc_last_class');
+    if (sc) { const p=sc.split('|'); _lastGrade=p[0]; _lastClassNum=p[1]; }
+    _selTeacher = localStorage.getItem('yc_last_teacher') || '';
+    if (_selTeacher) {
+      const sel = document.getElementById('teacherSel');
+      if (sel) sel.value = _selTeacher;
+    }
+  } catch(e) {}
+
+  renderClassSelector();
+  renderRecentLog();
+  setInterval(checkReservations, 30000);
+}
+
+function onTeacherChange() {
+  const sel = document.getElementById('teacherSel');
+  _selTeacher = sel ? sel.value : '';
+  try { localStorage.setItem('yc_last_teacher', _selTeacher); } catch(e) {}
+}
+window.onTeacherChange = onTeacherChange;
+
+function renderClassSelector() {
+  const g = document.getElementById('classSelector'); if (!g) return;
+  const classList = [];
+  const seen = {};
+  _allStudents.forEach(s => {
+    const key = s.grade + '|' + s.classNum;
+    if (!seen[key]) { seen[key]=true; classList.push({grade:s.grade, classNum:s.classNum}); }
+  });
+  classList.sort((a,b) => {
+    const gd = parseInt(a.grade) - parseInt(b.grade);
+    return gd !== 0 ? gd : parseInt(a.classNum) - parseInt(b.classNum);
+  });
+  g.innerHTML = '';
+  if (!classList.length) {
+    g.innerHTML = '<div class="cls-empty">⚙️ 설정에서 학생 목록을 먼저 입력해주세요</div>'; return;
+  }
+  classList.forEach(c => {
+    const btn = document.createElement('button'); btn.className = 'cls-btn';
+    btn.dataset.grade = c.grade; btn.dataset.classnum = c.classNum;
+    btn.textContent = c.grade + '-' + c.classNum;
+    if (c.grade === _lastGrade && c.classNum === _lastClassNum) btn.classList.add('on');
+    btn.onclick = () => selectClass(c.grade, c.classNum);
+    g.appendChild(btn);
+  });
+  if (_lastGrade && _lastClassNum) selectClass(_lastGrade, _lastClassNum);
+}
+
+function selectClass(grade, classNum) {
+  _lastGrade=grade; _lastClassNum=classNum;
+  try { localStorage.setItem('yc_last_class', grade+'|'+classNum); } catch(e) {}
+  document.querySelectorAll('.cls-btn').forEach(b =>
+    b.classList.toggle('on', b.dataset.grade===grade && b.dataset.classnum===classNum));
+  const sw=document.getElementById('searchWrap'), si=document.getElementById('searchInput');
+  if(sw) sw.style.display='block';
+  if(si) si.value='';
+  renderStudentGrid(_allStudents.filter(s => s.grade===grade && s.classNum===classNum));
+  selStudent=null;
+  const info=document.getElementById('selInfo'); if(info) info.textContent='학생을 선택해주세요';
+}
+window.selectClass = selectClass;
+
+function renderStudentGrid(list) {
+  const g = document.getElementById('studentGrid'); if (!g) return;
+  g.innerHTML = '';
+  if (!list.length) {
+    g.innerHTML='<div style="color:var(--text2);font-size:13px;grid-column:1/-1;text-align:center;padding:20px">학생이 없습니다.</div>'; return;
+  }
+  list.forEach(st => {
+    const btn = document.createElement('button'); btn.className='sbtn';
+    btn.onclick = () => {
+      document.querySelectorAll('.sbtn').forEach(x => x.classList.remove('on'));
+      btn.classList.add('on');
+      selStudent = st;
+      const info=document.getElementById('selInfo');
+      if(info) info.textContent = st.num+'번 '+st.name+' 학생';
+    };
+    btn.innerHTML = `<div class="sbtn-num">${st.num}번</div><div class="sbtn-name">${st.name}</div>`;
+    g.appendChild(btn);
+  });
+}
+
+function filterStudents(q) {
+  q = q.trim();
+  const base = _allStudents.filter(s => s.grade===_lastGrade && s.classNum===_lastClassNum);
+  renderStudentGrid(q ? base.filter(s => s.name.includes(q) || String(s.num)===q) : base);
+  if(q) { selStudent=null; const info=document.getElementById('selInfo'); if(info) info.textContent='학생을 선택해주세요'; }
+}
+window.filterStudents = filterStudents;
+
+async function submitCall() {
+  if (!selStudent) { showToast('학생을 먼저 선택해주세요'); return; }
+  if (!_selTeacher) { showToast('선생님을 먼저 선택해주세요'); return; }
+  const mi=document.getElementById('msgInput'), msg=mi?mi.value.trim():'';
+  const btn=document.getElementById('callBtn');
+  btn.disabled=true; btn.textContent='호출 중...';
+  try {
+    await push(ref(db, 'yucall/calls'), {
+      teacher: _selTeacher,
+      grade: selStudent.grade, classNum: selStudent.classNum,
+      num: selStudent.num, name: selStudent.name,
+      message: msg, confirmed: false,
+      timestamp: Date.now()
+    });
+    showToast(selStudent.num+'번 '+selStudent.name+' 학생 호출 완료!');
+    addToRecentLog(selStudent, msg);
+    document.querySelectorAll('.sbtn').forEach(x => x.classList.remove('on'));
+    selStudent=null;
+    const info=document.getElementById('selInfo'); if(info) info.textContent='학생을 선택해주세요';
+    if(mi) mi.value='';
+  } catch(e) { showToast('전송 실패: '+e.message); }
+  btn.disabled=false; btn.textContent='📣 호출하기';
+}
+window.submitCall = submitCall;
+
+function addToRecentLog(st, msg) {
+  const now=new Date();
+  const time=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  _rcItems.unshift({time, teacher:_selTeacher, grade:st.grade, classNum:st.classNum, num:st.num, name:st.name, msg});
+  if (_rcItems.length>15) _rcItems.pop();
+  renderRecentLog();
+}
+
+function renderRecentLog() {
+  const el=document.getElementById('rcLog'); if(!el) return;
+  el.innerHTML='';
+  if(!_rcItems.length){el.innerHTML='<div class="rc-empty">호출 내역이 없습니다</div>';return;}
+  _rcItems.forEach(item=>{
+    const row=document.createElement('div'); row.className='rc-item';
+    let html=`<div class="rc-time">${item.time}</div><div><div class="rc-name">${item.grade}-${item.classNum} ${item.num}번 ${item.name} 학생</div>`;
+    if(item.teacher) html+=`<div class="rc-msg">👤 ${item.teacher} 선생님</div>`;
+    if(item.msg)     html+=`<div class="rc-msg">${item.msg}</div>`;
+    html+='</div>';
+    row.innerHTML=html; el.appendChild(row);
+  });
+}
+
+// 예약 호출
+function addReservation() {
+  if (!selStudent) { showToast('학생을 먼저 선택해주세요'); return; }
+  if (!_selTeacher) { showToast('선생님을 먼저 선택해주세요'); return; }
+  const ti=document.getElementById('resvTimeInput');
+  if (ti&&!ti.value) { const d=new Date(Date.now()+10*60*1000); ti.value=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  const timeVal=ti?ti.value:'';
+  if (!timeVal) { showToast('예약 시간을 입력해주세요'); return; }
+  if (timeVal<=nowHHMM()) { showToast('⚠️ 현재 시간보다 이후로 설정해주세요'); return; }
+  if (_reservations.filter(r=>!r.fired).length>=5) { showToast('예약은 최대 5개까지 가능합니다'); return; }
+  const mi=document.getElementById('msgInput'), msg=mi?mi.value.trim():'';
+  _reservations.push({id:Date.now(),teacher:_selTeacher,grade:selStudent.grade,classNum:selStudent.classNum,num:selStudent.num,name:selStudent.name,message:msg,time:timeVal,fired:false});
+  showToast('⏰ '+timeVal+' '+selStudent.name+' 학생 예약 완료!');
+  document.querySelectorAll('.sbtn').forEach(x=>x.classList.remove('on'));
+  selStudent=null;
+  const info=document.getElementById('selInfo'); if(info) info.textContent='학생을 선택해주세요';
+  if(mi) mi.value=''; if(ti) ti.value='';
+  renderResvList();
+}
+window.addReservation = addReservation;
+
+function cancelReservation(id) {
+  _reservations=_reservations.filter(r=>r.id!==id);
+  renderResvList(); showToast('예약이 취소되었습니다');
+}
+window.cancelReservation = cancelReservation;
+
+function renderResvList() {
+  const panel=document.getElementById('resvPanel'), list=document.getElementById('resvList');
+  if(!panel||!list) return;
+  const active=_reservations.filter(r=>!r.fired);
+  if(!active.length){panel.style.display='none';return;}
+  panel.style.display='block'; list.innerHTML='';
+  active.slice().sort((a,b)=>a.time>b.time?1:-1).forEach(r=>{
+    const item=document.createElement('div'); item.className='resv-item';
+    item.innerHTML=`<div class="resv-badge">${r.time}</div><div class="resv-info"><div class="resv-name">${r.grade}-${r.classNum} ${r.num}번 ${r.name} 학생</div>${r.teacher?`<div class="resv-msg">👤 ${r.teacher} 선생님</div>`:''} ${r.message?`<div class="resv-msg">${r.message}</div>`:''}</div><button class="resv-del" onclick="cancelReservation(${r.id})">✕</button>`;
+    list.appendChild(item);
+  });
+}
+
+async function checkReservations() {
+  const current=nowHHMM();
+  for (const r of _reservations) {
+    if (!r.fired && r.time<=current) {
+      r.fired=true;
+      try {
+        await push(ref(db,'yucall/calls'),{teacher:r.teacher,grade:r.grade,classNum:r.classNum,num:r.num,name:r.name,message:r.message,confirmed:false,timestamp:Date.now()});
+        showToast('📣 '+r.time+' '+r.name+' 예약 호출 완료!');
+        addToRecentLog({grade:r.grade,classNum:r.classNum,num:r.num,name:r.name},r.message);
+        setTimeout(()=>{_reservations=_reservations.filter(x=>x.id!==r.id);renderResvList();},3000);
+      } catch(e) { r.fired=false; showToast('⚠️ 예약 호출 실패'); }
+    }
+  }
+}
+
+// ══════════════════════════════════
+// 학생 UI
+// ══════════════════════════════════
+let _myGrade='', _myClassNum='', _stPending=[], _countTimer=null, _countRemain=0, _currentCallKey=null;
+let _alertedKeys={};
+
+function buildStudentUI() {
+  const classList=[];
+  const seen={};
+  (CONFIG.students||[]).forEach(s=>{
+    const key=s.grade+'|'+s.classNum;
+    if(!seen[key]){seen[key]=true;classList.push({grade:s.grade,classNum:s.classNum});}
+  });
+  classList.sort((a,b)=>{const gd=parseInt(a.grade)-parseInt(b.grade);return gd!==0?gd:parseInt(a.classNum)-parseInt(b.classNum);});
+
+  try{const sc=localStorage.getItem('yc_my_class');if(sc){const p=sc.split('|');_myGrade=p[0];_myClassNum=p[1];}}catch(e){}
+
+  document.getElementById('app').innerHTML=`
+  <div class="start-modal" id="startModal">
+    <div class="start-icon">📣</div>
+    <div class="start-title">유콜 교실</div>
+    <div class="start-sub">우리 반을 선택하고 시작하세요<br><span style="font-size:12px;color:rgba(255,255,255,.35)">브라우저 보안 정책상 첫 클릭이 필요합니다</span></div>
+    <div class="start-class-wrap">
+      <div class="start-class-lbl">학년 · 반 선택</div>
+      <div class="start-class-grid" id="startClassGrid">
+        ${classList.map(c=>`<button class="start-cls-btn${c.grade===_myGrade&&c.classNum===_myClassNum?' on':''}"
+          onclick="selectMyClass('${c.grade}','${c.classNum}',this)">${c.grade}학년 ${c.classNum}반</button>`).join('')}
+      </div>
+    </div>
+    <button class="start-btn" onclick="startStudent()">📣 시작하기</button>
+  </div>
+  <header class="header">
+    <div style="display:flex;align-items:center">
+      <div class="logo logo-s">유<em>콜</em></div>
+      <div class="badge" id="sBadge">${CONFIG.schoolName}</div>
+    </div>
+    <div class="hright">
+      <div class="live"></div>
+      <div class="chip s">교실</div>
+    </div>
+  </header>
+  <div class="s-main">
+    <div class="s-standby" id="sStandby">
+      <div class="s-classname" id="sClassName"></div>
+      <div class="s-clock" id="sClock">--:--</div>
+      <div class="s-wait">대기 중...</div>
+      <div class="s-settings">
+        <div class="tts-status" id="ttsStatus">🗣️ 브라우저 내장 TTS</div>
+        <div class="spanel">
+          <div class="srow">
+            <span class="slbl">호출음</span>
+            <select class="ssel" id="soundSelect" onchange="savePref()">
+              <option value="0">부드러운 차임</option>
+              <option value="1">딩동</option>
+              <option value="2">멜로디</option>
+              <option value="3">나무 노크</option>
+              <option value="4">물방울</option>
+              <option value="5">🔔 학교 종소리</option>
+              <option value="6">📞 전화벨</option>
+              <option value="7">🚨 긴 알람</option>
+            </select>
+          </div>
+          <div class="srow" style="margin-top:9px">
+            <span class="slbl">호출 횟수</span>
+            <select class="ssel" id="repeatSelect" onchange="savePref()">
+              <option value="1">1회</option><option value="2" selected>2회</option><option value="3">3회</option>
+            </select>
+          </div>
+          <div class="vrow">
+            <span class="slbl">볼륨</span>
+            <input type="range" class="vsldr" id="volSlider" min="1" max="10" value="5"
+              oninput="document.getElementById('vval').textContent=this.value;savePref()">
+            <span class="vval" id="vval">5</span>
+          </div>
+          <div class="vrow" style="margin-top:8px">
+            <button class="tbtn2" onclick="playSound(parseInt(document.getElementById('soundSelect').value),getVol())">🔊 소리 테스트</button>
+          </div>
+          <div class="vrow" style="margin-top:4px">
+            <span class="slbl">음성 크기</span>
+            <input type="range" class="vsldr" id="ttsVolSlider" min="1" max="10" value="10"
+              oninput="document.getElementById('tvval').textContent=this.value;savePref()">
+            <span class="vval" id="tvval">10</span>
+          </div>
+          <div class="vrow" style="margin-top:8px">
+            <button class="tbtn2" onclick="speakPromise('음성 테스트입니다 잘 들리시나요')">🗣️ 음성 테스트</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="s-alert" id="sAlert">
+      <div class="s-alert-inner">
+        <div class="s-lbl">📣 호출</div>
+        <div class="s-num"     id="sNum"></div>
+        <div class="s-name"    id="sName"></div>
+        <div class="s-san">학생</div>
+        <div class="s-msg"     id="sMsg"     style="display:none"></div>
+        <div class="s-teacher" id="sTeacher" style="display:none"></div>
+        <div class="s-countdown" id="sCountdown"></div>
+        <div class="s-bar-wrap"><div class="s-bar" id="sBar" style="width:100%"></div></div>
+        <div class="s-queue"   id="sQueue"   style="display:none"></div>
+      </div>
+    </div>
+  </div>
+  <footer class="app-footer">
+    Developed by 김주현 (광평중) <span class="sep">·</span>
+    📸 <a href="https://www.instagram.com/kimju.zip" target="_blank">@kimju.zip</a>
+  </footer>`;
+
+  startClock();
+  if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(()=>{});
+}
+
+function selectMyClass(grade, classNum, btn) {
+  _myGrade=grade; _myClassNum=classNum;
+  document.querySelectorAll('.start-cls-btn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+}
+window.selectMyClass = selectMyClass;
+
+let _studentStarted=false;
+function startStudent() {
+  if (_studentStarted) return;
+  if (!_myGrade||!_myClassNum) { showToast('반을 먼저 선택해주세요'); return; }
+  _studentStarted=true;
+  getAC(); loadPref();
+  playSound(parseInt(document.getElementById('soundSelect')?.value||'0'), getVol());
+  try{localStorage.setItem('yc_my_class',_myGrade+'|'+_myClassNum);}catch(e){}
+  const clsName=_myGrade+'학년 '+_myClassNum+'반';
+  const cn=document.getElementById('sClassName'); if(cn) cn.textContent=clsName;
+  const badge=document.getElementById('sBadge');
+  if(badge) badge.textContent=(CONFIG.schoolName?CONFIG.schoolName+' ':'')+clsName;
+  document.getElementById('startModal').style.display='none';
+
+  // Firebase 실시간 리스너
+  onChildAdded(ref(db,'yucall/calls'), snap => {
+    const call={...snap.val(), _key:snap.key};
+    if (call.grade!==_myGrade || call.classNum!==_myClassNum) return;
+    if (call.confirmed) return;
+    if (_alertedKeys[call._key]) return;
+
+    _alertedKeys[call._key]=true;
+    _stPending.push(call);
+
+    if (!_countTimer) {
+      const ttsText = call.name+' 학생 교무실로 오세요'+(call.message&&call.message.trim()?'. '+call.message.trim():'');
+      playAlertNTimes(ttsText, getRepeat());
+      showStudentAlert(call);
+    } else {
+      // 카운트 중이면 큐 표시만 업데이트
+      const qEl=document.getElementById('sQueue');
+      if(qEl&&_stPending.length>1){qEl.textContent='+ 대기 '+(_stPending.length-1)+'건';qEl.style.display='';}
+    }
+  });
+
+  // 기존 미확인 호출 처리 (페이지 새로고침 시)
+  onValue(ref(db,'yucall/calls'), snap => {
+    if (!snap.exists()) return;
+    const all=[];
+    snap.forEach(child=>{
+      const d=child.val();
+      if(d.grade===_myGrade&&d.classNum===_myClassNum&&!d.confirmed) all.push({...d,_key:child.key});
+    });
+    // 이미 알림 울린 것 제외, 새로 들어온 것만 추가 (onChildAdded가 담당하므로 여기서는 UI 동기화만)
+    if(all.length>0&&!_countTimer&&_stPending.length===0){
+      // 화면 복원 (새로고침 후)
+      const first=all[0];
+      if(!_alertedKeys[first._key]){
+        _alertedKeys[first._key]=true;
+        _stPending=[first];
+        const ttsText=first.name+' 학생 교무실로 오세요'+(first.message&&first.message.trim()?'. '+first.message.trim():'');
+        playAlertNTimes(ttsText,getRepeat());
+        showStudentAlert(first);
+      }
+    }
+  },{onlyOnce:true});
+}
+window.startStudent=startStudent;
+
+function startClock() {
+  const tick=()=>{const el=document.getElementById('sClock');if(!el)return;const n=new Date();el.textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');};
+  tick(); setInterval(tick,1000);
+}
+
+function showStudentStandby() {
+  document.getElementById('sStandby').style.display='flex';
+  document.getElementById('sAlert').style.display='none';
+}
+
+function showStudentAlert(call) {
+  document.getElementById('sStandby').style.display='none';
+  document.getElementById('sAlert').style.display='flex';
+  document.getElementById('sNum').textContent=call.num+'번';
+  document.getElementById('sName').textContent=call.name;
+  const msgEl=document.getElementById('sMsg');
+  if(call.message&&call.message.trim()){msgEl.textContent=call.message;msgEl.style.display='';}else{msgEl.style.display='none';}
+  const tEl=document.getElementById('sTeacher');
+  if(call.teacher&&call.teacher.trim()){tEl.textContent='🍀 '+call.teacher+' 선생님';tEl.style.display='';}else{tEl.style.display='none';}
+  const qEl=document.getElementById('sQueue');
+  if(_stPending.length>1){qEl.textContent='+ 대기 '+(_stPending.length-1)+'건 더 있음';qEl.style.display='';}else{qEl.style.display='none';}
+  _currentCallKey=call._key;
+  startCountdown(CONFIG.autoDismiss||30);
+}
+
+function startCountdown(sec) {
+  if(_countTimer){clearInterval(_countTimer);_countTimer=null;}
+  _countRemain=sec; updateCountdownUI();
+  _countTimer=setInterval(async()=>{
+    _countRemain--; updateCountdownUI();
+    if(_countRemain<=0){
+      clearInterval(_countTimer); _countTimer=null;
+      const keyToConfirm=_currentCallKey; _currentCallKey=null;
+      if(keyToConfirm){
+        try { await update(ref(db,'yucall/calls/'+keyToConfirm),{confirmed:true}); } catch(e){}
+        _stPending=_stPending.filter(c=>c._key!==keyToConfirm);
+      }
+      if(_stPending.length>0){
+        const next=_stPending[0];
+        const ttsText=next.name+' 학생 교무실로 오세요'+(next.message&&next.message.trim()?'. '+next.message.trim():'');
+        playAlertNTimes(ttsText,getRepeat());
+        showStudentAlert(next);
+      } else { showStudentStandby(); }
+    }
+  },1000);
+}
+
+function updateCountdownUI() {
+  const cd=document.getElementById('sCountdown'),bar=document.getElementById('sBar');
+  if(cd) cd.textContent=_countRemain+'초 후 자동 닫힘';
+  if(bar) bar.style.width=Math.max(0,_countRemain/(CONFIG.autoDismiss||30)*100)+'%';
+}
+
+// ══════════════════════════════════
+// 진입점
+// ══════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadConfig();
+  if (ROLE==='teacher') buildTeacherUI();
+  else                  buildStudentUI();
+});
+
+// 전역 노출 (HTML onclick 대응)
+window.savePref    = savePref;
+window.playSound   = playSound;
+window.getVol      = getVol;
+window.speakPromise= speakPromise;
+</script>
+</body>
+</html>
