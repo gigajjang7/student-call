@@ -1042,11 +1042,9 @@ function updateCountdownUI() {
 // ══════════════════════════════════
 // 진입점
 // ══════════════════════════════════
-window.addEventListener('DOMContentLoaded', async () => {
-  await loadConfig();
+window.addEventListener('DOMContentLoaded', () => {
+  // UI를 즉시 그리고 Firebase 데이터는 백그라운드 로드
   if (ROLE==='teacher') buildTeacherUI();
   else                  buildStudentUI();
-});
 
-// 전역 노출 (HTML onclick 대응)
-window.savePref   
+  // 백그라�
