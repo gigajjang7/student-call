@@ -333,7 +333,10 @@ let selStudent = null, _allStudents = [], _rcItems = [], _reservations = [];
 // ── 설정 로드 ──
 async function loadConfig() {
   try {
-    const snap = await get(ref(db, 'yucall/config'));
+    const snap = await Promise.race([
+      get(ref(db, 'yucall/config')),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+    ]);
     if (snap.exists()) {
       const d = snap.val();
       CONFIG = {
@@ -1046,8 +1049,4 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // 전역 노출 (HTML onclick 대응)
-window.savePref    = savePref;
-window.playSound   = playSound;
-window.getVol      = getVol;
-window.speakPromise= speakPromise;
-</scrip
+window.savePref   
