@@ -334,8 +334,15 @@ function loadVoices() {
   savePref();
 }
 if (window.speechSynthesis) {
-  speechSynthesis.addEventListener('voiceschanged', loadVoices);
-  loadVoices();
+  try {
+    speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    loadVoices();
+    let _vcTry = 0;
+    const _vcTimer = setInterval(() => {
+      if (speechSynthesis.getVoices().length > 0) { loadVoices(); clearInterval(_vcTimer); }
+      if (++_vcTry > 20) clearInterval(_vcTimer);
+    }, 250);
+  } catch(e) { console.warn('TTS init:', e); }
 }
 
 function getTtsVol() {
@@ -352,17 +359,20 @@ function getSelectedVoice() {
 function speakPromise(text) {
   return new Promise(resolve => {
     if (!window.speechSynthesis) { resolve(); return; }
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    const voice = getSelectedVoice();
-    u.lang   = voice ? voice.lang : 'ko-KR';
-    u.rate   = 0.9;
-    u.volume = getTtsVol();
-    if (voice) u.voice = voice;
-    const timeout = setTimeout(resolve, text.length * 200 + 2000);
-    u.onend  = () => { clearTimeout(timeout); resolve(); };
-    u.onerror= () => { clearTimeout(timeout); resolve(); };
-    speechSynthesis.speak(u);
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const voice = getSelectedVoice();
+      u.lang   = voice ? voice.lang : 'ko-KR';
+      u.rate   = 0.9;
+      u.volume = getTtsVol();
+      if (voice) u.voice = voice;
+      const timeout = setTimeout(resolve, text.length * 200 + 2000);
+      u.onend  = () => { clearTimeout(timeout); resolve(); };
+      u.onerror= () => { clearTimeout(timeout); resolve(); };
+      speechSynthesis.speak(u);
+      setTimeout(() => { try { if (speechSynthesis.paused) speechSynthesis.resume(); } catch(e){} }, 100);
+    } catch(e) { console.warn('TTS speak:', e); resolve(); }
   });
 }
 
@@ -670,6 +680,17 @@ function renderStudentGrid(list) {
   if (!list.length) {
     g.innerHTML='<div style="color:var(--text2);font-size:13px;grid-column:1/-1;text-align:center;padding:20px">학생이 없습니다.</div>'; return;
   }
+  // 전체 공지 버튼
+  const allBtn = document.createElement('button'); allBtn.className='sbtn';
+  allBtn.onclick = () => {
+    document.querySelectorAll('.sbtn').forEach(x => x.classList.remove('on'));
+    allBtn.classList.add('on');
+    selStudent = {isAll:true, grade:_lastGrade, classNum:_lastClassNum};
+    const info=document.getElementById('selInfo');
+    if(info) info.textContent = '📢 '+_lastGrade+'-'+_lastClassNum+' 반 전체 공지';
+  };
+  allBtn.innerHTML = '<div class="sbtn-num">📢</div><div class="sbtn-name">전체</div>';
+  g.appendChild(allBtn);
   list.forEach(st => {
     const btn = document.createElement('button'); btn.className='sbtn';
     btn.onclick = () => {
@@ -696,18 +717,31 @@ async function submitCall() {
   if (!selStudent) { showToast('학생을 먼저 선택해주세요'); return; }
   if (!_selTeacher) { showToast('선생님을 먼저 선택해주세요'); return; }
   const mi=document.getElementById('msgInput'), msg=mi?mi.value.trim():'';
+  if (selStudent.isAll && !msg) { showToast('전체 공지 메시지를 입력해주세요'); return; }
   const btn=document.getElementById('callBtn');
   btn.disabled=true; btn.textContent='호출 중...';
   try {
-    await dbPush('yucall/calls', {
-      teacher: _selTeacher,
-      grade: selStudent.grade, classNum: selStudent.classNum,
-      num: selStudent.num, name: selStudent.name,
-      message: msg, confirmed: false,
-      timestamp: Date.now()
-    });
-    showToast(selStudent.num+'번 '+selStudent.name+' 학생 호출 완료!');
-    addToRecentLog(selStudent, msg);
+    if (selStudent.isAll) {
+      await dbPush('yucall/calls', {
+        teacher: _selTeacher,
+        grade: selStudent.grade, classNum: selStudent.classNum,
+        num: '', name: '전체공지',
+        isAll: true,
+        message: msg, confirmed: false,
+        timestamp: Date.now()
+      });
+      showToast('📢 '+selStudent.grade+'-'+selStudent.classNum+' 반 전체 공지 완료!');
+    } else {
+      await dbPush('yucall/calls', {
+        teacher: _selTeacher,
+        grade: selStudent.grade, classNum: selStudent.classNum,
+        num: selStudent.num, name: selStudent.name,
+        message: msg, confirmed: false,
+        timestamp: Date.now()
+      });
+      showToast(selStudent.num+'번 '+selStudent.name+' 학생 호출 완료!');
+      addToRecentLog(selStudent, msg);
+    }
     document.querySelectorAll('.sbtn').forEach(x => x.classList.remove('on'));
     selStudent=null;
     const info=document.getElementById('selInfo'); if(info) info.textContent='학생을 선택해주세요';
@@ -808,7 +842,12 @@ function handleIncomingCall(key, call) {
   _alertedKeys[key]=true;
   _stPending.push({...call, _key:key});
   if (!_countTimer) {
-    const t=call.name+' 학생 '+(call.teacher&&call.teacher.trim()?call.teacher+' 선생님께 오세요':'교무실로 오세요')+(call.message&&call.message.trim()?'. '+call.message.trim():'');
+    let t;
+    if (call.isAll) {
+      t = call.message && call.message.trim() ? call.message.trim() : '전체 공지입니다';
+    } else {
+      t = call.name+' 학생 '+(call.teacher&&call.teacher.trim()?call.teacher+' 선생님께 오세요':'교무실로 오세요')+(call.message&&call.message.trim()?'. '+call.message.trim():'');
+    }
     playAlertNTimes(t, getRepeat());
     showStudentAlert({...call,_key:key});
   } else {
@@ -819,33 +858,55 @@ function handleIncomingCall(key, call) {
 
 function startStudentSSE() {
   if (_sseSource) return;
-  _sseSource = new EventSource(`${DB_URL}/yucall/calls.json`);
-  _sseSource.addEventListener('put', e => {
-    const {path, data} = JSON.parse(e.data);
-    if (!data) return;
-    if (path === '/') {
-      // 초기 전체 데이터
-      Object.entries(data).forEach(([key, call]) => handleIncomingCall(key, call));
-    } else {
-      // 단일 자식 추가 (path = '/-Key')
-      const key = path.slice(1);
-      handleIncomingCall(key, data);
-    }
-  });
-  _sseSource.addEventListener('patch', e => {
-    const {path, data} = JSON.parse(e.data);
-    if (!data) return;
-    if (path === '/') {
-      // POST(push)로 추가된 자식
-      Object.entries(data).forEach(([key, call]) => handleIncomingCall(key, call));
-    }
-    // '/-key' 경로 patch = 필드 업데이트 (confirmed 등) — 별도 처리 불필요
-  });
-  _sseSource.onerror = () => {
-    console.warn('SSE 재연결 중...');
-    _sseSource.close(); _sseSource=null;
-    setTimeout(startStudentSSE, 5000);
-  };
+  try {
+    _sseSource = new EventSource(`${DB_URL}/yucall/calls.json`);
+    _sseSource.addEventListener('put', e => {
+      try {
+        const {path, data} = JSON.parse(e.data);
+        if (!data) return;
+        if (path === '/') {
+          Object.entries(data).forEach(([key, call]) => handleIncomingCall(key, call));
+        } else {
+          const key = path.slice(1);
+          handleIncomingCall(key, data);
+        }
+      } catch(e) { console.warn('SSE put:', e); }
+    });
+    _sseSource.addEventListener('patch', e => {
+      try {
+        const {path, data} = JSON.parse(e.data);
+        if (!data) return;
+        if (path === '/') {
+          Object.entries(data).forEach(([key, call]) => handleIncomingCall(key, call));
+        }
+      } catch(e) { console.warn('SSE patch:', e); }
+    });
+    _sseSource.onerror = () => {
+      console.warn('SSE 재연결 중...');
+      _sseSource.close(); _sseSource=null;
+      setTimeout(startStudentSSE, 5000);
+    };
+  } catch(e) {
+    console.warn('SSE 연결 실패, 폴링으로 전환:', e);
+    _sseSource = null;
+    startPolling();
+  }
+}
+let _pollTimer = null, _pollLastTs = 0;
+function startPolling() {
+  if (_pollTimer) return;
+  _pollTimer = setInterval(async () => {
+    try {
+      const data = await dbGet('yucall/calls');
+      if (!data || typeof data !== 'object') return;
+      Object.entries(data).forEach(([key, call]) => {
+        if (call && call.timestamp && call.timestamp > _pollLastTs) {
+          handleIncomingCall(key, call);
+        }
+      });
+      _pollLastTs = Date.now() - 1000;
+    } catch(e) {}
+  }, 3000);
 }
 
 function buildStudentUI() {
@@ -984,10 +1045,23 @@ function showStudentStandby() {
 function showStudentAlert(call) {
   document.getElementById('sStandby').style.display='none';
   document.getElementById('sAlert').style.display='flex';
-  document.getElementById('sNum').textContent=call.num+'번';
-  document.getElementById('sName').textContent=call.name;
+  const numEl=document.getElementById('sNum');
+  const nameEl=document.getElementById('sName');
+  const sanEl=document.querySelector('.s-san');
+  const lblEl=document.querySelector('.s-lbl');
+  if (call.isAll) {
+    if(numEl) numEl.style.display='none';
+    if(sanEl) sanEl.style.display='none';
+    if(lblEl) { lblEl.textContent='📢 전체 공지'; }
+    if(nameEl) { nameEl.style.fontSize='clamp(36px,6vw,72px)'; nameEl.textContent=call.message&&call.message.trim()?call.message:'전체 공지'; }
+  } else {
+    if(numEl) { numEl.style.display=''; numEl.textContent=call.num+'번'; }
+    if(sanEl) sanEl.style.display='';
+    if(lblEl) { lblEl.textContent='호출'; }
+    if(nameEl) { nameEl.style.fontSize=''; nameEl.textContent=call.name; }
+  }
   const msgEl=document.getElementById('sMsg');
-  if(call.message&&call.message.trim()){msgEl.textContent=call.message;msgEl.style.display='';}else{msgEl.style.display='none';}
+  if(!call.isAll&&call.message&&call.message.trim()){msgEl.textContent=call.message;msgEl.style.display='';}else{msgEl.style.display='none';}
   const tEl=document.getElementById('sTeacher');
   if(call.teacher&&call.teacher.trim()){tEl.textContent=call.teacher+' 선생님';tEl.style.display='';}else{tEl.style.display='none';}
   const qEl=document.getElementById('sQueue');
@@ -1010,7 +1084,12 @@ function startCountdown(sec) {
       }
       if(_stPending.length>0){
         const next=_stPending[0];
-        const ttsText=next.name+' 학생 교무실로 오세요'+(next.message&&next.message.trim()?'. '+next.message.trim():'');
+        let ttsText;
+        if (next.isAll) {
+          ttsText = next.message && next.message.trim() ? next.message.trim() : '전체 공지입니다';
+        } else {
+          ttsText = next.name+' 학생 '+(next.teacher&&next.teacher.trim()?next.teacher+' 선생님께 오세요':'교무실로 오세요')+(next.message&&next.message.trim()?'. '+next.message.trim():'');
+        }
         playAlertNTimes(ttsText,getRepeat());
         showStudentAlert(next);
       } else { showStudentStandby(); }
